@@ -25,6 +25,7 @@ import com.mustafacol.jetnote.components.NoteButton
 import com.mustafacol.jetnote.components.NoteInputText
 import com.mustafacol.jetnote.data.NotesDataSource
 import com.mustafacol.jetnote.model.Note
+import com.mustafacol.jetnote.utils.formatDate
 import java.time.format.DateTimeFormatter
 
 
@@ -115,7 +116,7 @@ private fun NoteRow(item: Note, onNoteClicked: (Note) -> Unit) {
                 style = MaterialTheme.typography.subtitle1
             )
             Text(
-                text = item.entryDate.format(DateTimeFormatter.ofPattern("EEE, d MMM")),
+                text = formatDate(item.entryDate.time),
                 style = MaterialTheme.typography.caption
             )
         }

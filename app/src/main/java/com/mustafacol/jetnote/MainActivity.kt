@@ -8,6 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -18,9 +19,11 @@ import com.mustafacol.jetnote.model.Note
 import com.mustafacol.jetnote.screen.NoteScreen
 import com.mustafacol.jetnote.screen.NoteViewModel
 import com.mustafacol.jetnote.ui.theme.JetNoteTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalComposeUiApi
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -37,15 +40,15 @@ class MainActivity : ComponentActivity() {
 
 @ExperimentalComposeUiApi
 @Composable
-fun NoteApp(noteViewModel: NoteViewModel = viewModel()) {
-    val notes = noteViewModel.getNoteList()
+fun NoteApp(noteViewModel: NoteViewModel ) {
+    val notesList = noteViewModel.noteList.collectAsState().value
     NoteScreen(
-        notes = notes,
+        notes = notesList,
         onAddNote = {
             noteViewModel.addNote(it)
         },
         onRemoveNote = {
-            noteViewModel.removeNote(it)
+            noteViewModel.deleteNote(it)
         })
 }
 
