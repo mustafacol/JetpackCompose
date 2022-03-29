@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -14,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mustafacol.jetnote.components.AlertDialogBuild
 import com.mustafacol.jetnote.data.NotesDataSource
 import com.mustafacol.jetnote.model.Note
 import com.mustafacol.jetnote.screen.NoteScreen
@@ -24,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @ExperimentalComposeUiApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -38,6 +41,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
 fun NoteApp(noteViewModel: NoteViewModel ) {
@@ -49,7 +53,13 @@ fun NoteApp(noteViewModel: NoteViewModel ) {
         },
         onRemoveNote = {
             noteViewModel.deleteNote(it)
-        })
+        },
+        onUpdateNote = {
+            noteViewModel.updateNote(it)
+        }
+    )
+
+
 }
 
 @Preview(showBackground = true)

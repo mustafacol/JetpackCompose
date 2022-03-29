@@ -1,7 +1,9 @@
 package com.mustafacol.jetnote.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mustafacol.jetnote.R
+import com.mustafacol.jetnote.components.AlertDialogBuild
 import com.mustafacol.jetnote.components.NoteButton
 import com.mustafacol.jetnote.components.NoteInputText
 import com.mustafacol.jetnote.data.NotesDataSource
@@ -29,12 +32,14 @@ import com.mustafacol.jetnote.utils.formatDate
 import java.time.format.DateTimeFormatter
 
 
+@ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
 fun NoteScreen(
     notes: List<Note>,
     onAddNote: (Note) -> Unit,
-    onRemoveNote: (Note) -> Unit
+    onRemoveNote: (Note) -> Unit,
+    onUpdateNote: (Note) -> Unit
 ) {
     var title by remember {
         mutableStateOf("")
@@ -42,6 +47,8 @@ fun NoteScreen(
     var description by remember {
         mutableStateOf("")
     }
+
+
     val context = LocalContext.current
     Column(modifier = Modifier.padding(6.dp)) {
         TopAppBar(
@@ -56,6 +63,8 @@ fun NoteScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+
             NoteInputText(
                 modifier = Modifier.padding(8.dp),
                 text = title,
@@ -83,15 +92,29 @@ fun NoteScreen(
 
             LazyColumn {
                 items(notes) { item ->
-                    NoteRow(item = item, onNoteClicked = { onRemoveNote(item) })
+                    NoteRow(
+                        item = item,
+                        onNoteClicked = {
+                            title = it.title
+                            description = it.description
+                        },
+                        onRemoveNote = {
+                            onRemoveNote(it)
+                        }
+
+                    )
                 }
             }
         }
     }
 }
 
+@ExperimentalFoundationApi
 @Composable
-private fun NoteRow(item: Note, onNoteClicked: (Note) -> Unit) {
+private fun NoteRow(item: Note, onNoteClicked: (Note) -> Unit, onRemoveNote: (Note) -> Unit) {
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,11 +125,25 @@ private fun NoteRow(item: Note, onNoteClicked: (Note) -> Unit) {
         Column(
             modifier = Modifier
                 .padding(vertical = 6.dp, horizontal = 14.dp)
-                .clickable {
-                    onNoteClicked(item)
-                },
+                .combinedClickable(
+                    onClick = { onNoteClicked(item) },
+                    onLongClick = {
+                        showDialog = true;
+                    }
+
+                ),
+
             horizontalAlignment = Alignment.Start
         ) {
+
+            if(showDialog)
+                AlertDialogBuild(
+                    title = "Delete",
+                    content = "Do you want to delete this note?",
+                    confirmButtonClick = { onRemoveNote(item) },
+                    confirmButtonText = "Okay",
+                    dismissButtonClick = { showDialog = false }
+                )
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.subtitle2
@@ -123,9 +160,11 @@ private fun NoteRow(item: Note, onNoteClicked: (Note) -> Unit) {
     }
 }
 
+
+@ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Preview
 @Composable
 fun NotesScreenPreview() {
-    NoteScreen(notes = NotesDataSource().loadData(), {}, {})
+    NoteScreen(notes = NotesDataSource().loadData(), {}, {}, {})
 }

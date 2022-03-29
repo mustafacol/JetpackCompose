@@ -1,6 +1,7 @@
 package com.mustafacol.jetnote.screen
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NoteViewModel @Inject constructor(private val noteRepository: NoteRepository) : ViewModel() {
     //private var noteList = mutableStateListOf<Note>()
+    var showDialog = mutableStateOf(false)
     private val _noteList = MutableStateFlow<List<Note>>(emptyList())
     val noteList = _noteList.asStateFlow()
 
