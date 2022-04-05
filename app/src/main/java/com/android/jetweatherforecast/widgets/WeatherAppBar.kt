@@ -1,13 +1,18 @@
 package com.android.jetweatherforecast.widgets
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,19 +26,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.android.jetweatherforecast.model.Weather
+import com.android.jetweatherforecast.navigation.WeatherScreens
 
-@Preview
 @Composable
 fun WeatherAppBar(
     title: String = "Title",
     icon: ImageVector? = null,
     isMainScreen: Boolean = true,
     elevation: Dp = 0.dp,
-    //navController: NavController,
+    navController: NavController,
     onAddActionClicked: () -> Unit = {},
     onButtonClicked: () -> Unit = {}
 
 ) {
+    val showDialog = remember {
+        mutableStateOf(false)
+    }
+    if (showDialog.value) {
+        ShowSettingDropDownMenu(showDialog = showDialog, navController = navController)
+    }
     TopAppBar(
         title = {
             Text(
@@ -45,7 +56,9 @@ fun WeatherAppBar(
         actions = {
             if (isMainScreen) {
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        onAddActionClicked.invoke()
+                    },
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -53,7 +66,7 @@ fun WeatherAppBar(
                     )
                 }
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { showDialog.value = true },
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.MoreVert,
@@ -80,4 +93,58 @@ fun WeatherAppBar(
 
     )
 
+}
+
+@Composable
+fun ShowSettingDropDownMenu(showDialog: MutableState<Boolean>, navController: NavController) {
+    var expanded by remember {
+        mutableStateOf(true)
+    }
+    val items = listOf("About", "Favorites", "Settings")
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd)
+            .absolutePadding(top = 45.dp, right = 20.dp)
+    ) {
+        DropdownMenu(
+
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .width(140.dp)
+                .background(Color.White)
+        ) {
+
+            items.forEachIndexed { index, item ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        showDialog.value = false
+                        navController.navigate(
+                            when (item) {
+                                "About" -> WeatherScreens.AboutScreen.name
+                                "Favorites" -> WeatherScreens.FavoriteScreen.name
+                                else -> WeatherScreens.SettingsScreen.name
+                            }
+                        )
+                    }) {
+                    Icon(
+                        imageVector = when (item) {
+                            "About" -> Icons.Default.Info
+                            "Favorites" -> Icons.Default.FavoriteBorder
+                            else -> Icons.Default.Settings
+                        },
+                        contentDescription = null,
+                        tint = Color.LightGray,
+                    )
+                    Text(
+                        text = item,
+                        modifier = Modifier.clickable { },
+                    )
+
+                }
+            }
+        }
+    }
 }

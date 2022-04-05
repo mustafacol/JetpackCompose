@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+@Preview
 @Composable
 fun WeatherApp() {
     JetWeatherForecastTheme {
@@ -45,7 +45,6 @@ fun WeatherApp() {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     JetWeatherForecastTheme {
