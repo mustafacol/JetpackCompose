@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "331319026142",
+    "project_id": "readtracker-815ab",
+    "storage_bucket": "readtracker-815ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331319026142:android:2e3ea30ad19cab09a3bd4f",
+        "android_client_info": {
+          "package_name": "com.android.readtracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331319026142-j545of9ium52kd4s1521osprv3de6fbo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgc5Adh8PrEmYee-G_eR_RvkPiYgHwauQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331319026142-j545of9ium52kd4s1521osprv3de6fbo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
