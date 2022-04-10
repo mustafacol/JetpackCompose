@@ -1,65 +1,78 @@
 package com.android.jetweatherforecast.screens
 
-import android.graphics.drawable.Icon
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import com.android.jetweatherforecast.R
 import com.android.jetweatherforecast.data.DataOrException
 import com.android.jetweatherforecast.model.Weather
 import com.android.jetweatherforecast.model.WeatherItem
-import com.android.jetweatherforecast.navigation.WeatherNavigation
 import com.android.jetweatherforecast.navigation.WeatherScreens
+import com.android.jetweatherforecast.screens.favorite.FavoriteViewModel
 import com.android.jetweatherforecast.screens.main.MainViewModel
+import com.android.jetweatherforecast.screens.settings.SettingsViewModel
 import com.android.jetweatherforecast.utils.formatDate
-import com.android.jetweatherforecast.utils.formatDateTime
 import com.android.jetweatherforecast.utils.formatDecimals
-import com.android.jetweatherforecast.utils.formatFahrenheitToCelsius
 import com.android.jetweatherforecast.widgets.*
 
 @Composable
-fun MainScreen(navController: NavController, mainViewModel: MainViewModel, city: String?) {
+fun MainScreen(
+    navController: NavController,
+    mainViewModel: MainViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    city: String?,
+    favoriteViewModel: FavoriteViewModel = hiltViewModel()
+) {
     //ShowData(mainViewModel = mainViewModel)
-    val weatherData = produceState<DataOrException<Weather, Boolean, Exception>>(
-        initialValue = DataOrException(loading = true),
-    ) {
-        value = mainViewModel.getWeatherData(city = city.toString())
-    }.value
-
-    if (weatherData.loading == true) {
-        CircularProgressIndicator()
-    } else if (weatherData.data != null) {
-        MainScaffold(weather = weatherData.data!!, navController = navController)
+    val curCity: String = if (city.isNullOrEmpty()) "Seattle" else city
+    val unitFromDb = settingsViewModel.unitList.collectAsState().value
+    var unit by remember {
+        mutableStateOf("imperial")
     }
+    var isImperial by remember {
+        mutableStateOf(false)
+    }
+
+    if (!unitFromDb.isNullOrEmpty()) {
+        unit = unitFromDb[0].unit.split(" ")[0].lowercase()
+        isImperial = unit == "imperial"
+
+        val weatherData = produceState<DataOrException<Weather, Boolean, Exception>>(
+            initialValue = DataOrException(loading = true),
+        ) {
+            value = mainViewModel.getWeatherData(city = curCity, unit = unit)
+        }.value
+
+        if (weatherData.loading == true) {
+            CircularProgressIndicator()
+        } else if (weatherData.data != null) {
+            MainScaffold(
+                weather = weatherData.data!!,
+                navController = navController,
+                isImperial = isImperial
+            )
+        }
+
+    }
+
+
 }
 
 @Composable
-fun MainScaffold(weather: Weather, navController: NavController) {
+fun MainScaffold(weather: Weather, navController: NavController, isImperial: Boolean) {
     Scaffold(
         topBar = {
             WeatherAppBar(
@@ -75,13 +88,13 @@ fun MainScaffold(weather: Weather, navController: NavController) {
             }
         }
     ) {
-        MainContent(data = weather)
+        MainContent(data = weather, isImperial = isImperial)
     }
 
 }
 
 @Composable
-fun MainContent(data: Weather) {
+fun MainContent(data: Weather, isImperial: Boolean) {
     val imageUrl = "https://openweathermap.org/img/wn/${data.list[0].weather[0].icon}.png"
     Column(
         modifier = Modifier
@@ -117,7 +130,7 @@ fun MainContent(data: Weather) {
             }
         }
 
-        HumidityWindPressureRow(weather = data.list[0])
+        HumidityWindPressureRow(weather = data.list[0], isImperial = isImperial)
         Divider()
         SunSetSunRiseRow(weather = data.list[0])
         Text(text = "This Week", fontWeight = FontWeight.Bold, fontSize = 18.sp)

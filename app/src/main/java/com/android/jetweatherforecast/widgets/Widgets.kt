@@ -26,7 +26,7 @@ import com.android.jetweatherforecast.utils.formatDecimals
 
 
 @Composable
-fun HumidityWindPressureRow(weather: WeatherItem) {
+fun HumidityWindPressureRow(weather: WeatherItem, isImperial: Boolean) {
     Row(
         modifier = Modifier
             .padding(15.dp)
@@ -54,7 +54,7 @@ fun HumidityWindPressureRow(weather: WeatherItem) {
                 contentDescription = "Wind Icon"
             )
             Text(
-                text = "${weather.speed} mph",
+                text = "${formatDecimals(weather.speed)} " +if (isImperial)"mph" else "m/s",
                 style = MaterialTheme.typography.caption
             )
         }

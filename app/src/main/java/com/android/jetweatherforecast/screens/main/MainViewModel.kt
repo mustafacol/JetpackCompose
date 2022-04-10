@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.jetweatherforecast.data.DataOrException
 import com.android.jetweatherforecast.model.City
+import com.android.jetweatherforecast.model.Unit
 import com.android.jetweatherforecast.model.Weather
 import com.android.jetweatherforecast.model.WeatherObject
 import com.android.jetweatherforecast.repository.WeatherRepository
@@ -20,8 +21,8 @@ class MainViewModel @Inject constructor(private val repository: WeatherRepositor
         DataOrException(null, true, Exception(""))
     )
 
-    suspend fun getWeatherData(city: String):DataOrException<Weather,Boolean,Exception>{
-        return repository.getWeather(city)
+    suspend fun getWeatherData(city: String,unit: String):DataOrException<Weather,Boolean,Exception>{
+        return repository.getWeather(city,unit)
     }
 
 
