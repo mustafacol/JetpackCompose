@@ -20,6 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.android.readtracker.components.ReadTrackerLogo
+import com.android.readtracker.navigation.ReadTrackerScreens
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 
 @Preview
 @Composable
@@ -38,6 +42,12 @@ fun TrackerSplashScreen(navController: NavHostController = NavHostController(Loc
                 }
             )
         )
+        delay(2000L)
+        if(FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+            navController.navigate(ReadTrackerScreens.LoginScreen.name)
+        }else{
+            navController.navigate(ReadTrackerScreens.ReadTrackerHomeScreen.name)
+        }
     }
 
     Surface(
@@ -57,10 +67,7 @@ fun TrackerSplashScreen(navController: NavHostController = NavHostController(Loc
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "Read Tracker", style = MaterialTheme.typography.h3,
-                color = Color.Red.copy(alpha = 0.3f)
-            )
+            ReadTrackerLogo()
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "\"Read. change. Yourself\"",
@@ -72,3 +79,4 @@ fun TrackerSplashScreen(navController: NavHostController = NavHostController(Loc
 
     }
 }
+
