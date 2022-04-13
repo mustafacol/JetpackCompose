@@ -1,9 +1,7 @@
 package com.android.readtracker.components
 
+import android.widget.ImageButton
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,12 +23,23 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.android.readtracker.R
+import com.android.readtracker.model.MBook
 import com.android.readtracker.navigation.ReadTrackerScreens
 import com.google.firebase.auth.FirebaseAuth
 
@@ -215,8 +224,10 @@ fun SubmitButton(
 @Composable
 fun ReadTrackerTopBar(
     title: String,
+    icon: ImageVector? = null,
     showProfile: Boolean = true,
-    navController: NavController
+    navController: NavController,
+    onBackArrowClicked: () -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -229,32 +240,174 @@ fun ReadTrackerTopBar(
                         contentDescription = "",
                         modifier = Modifier.size(45.dp)
                     )
-                    Text(
-                        modifier = Modifier.padding(start = 6.dp),
-                        text = title,
-                        color = Color.Red.copy(alpha = 0.6f),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
 
+                }
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "Arrow Back",
+                        tint = Color.Red.copy(alpha = 0.7f),
+                        modifier = Modifier.clickable { onBackArrowClicked.invoke() }
                     )
                 }
+                Text(
+                    modifier = Modifier.padding(start = 6.dp),
+                    text = title,
+                    color = Color.Red.copy(alpha = 0.6f),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+
+                )
 
 
             }
         },
         actions = {
-            IconButton(onClick = {
-                FirebaseAuth.getInstance().signOut().run {
-                    navController.navigate(ReadTrackerScreens.LoginScreen.name)
+            if(showProfile){
+                IconButton(onClick = {
+                    FirebaseAuth.getInstance().signOut().run {
+                        navController.navigate(ReadTrackerScreens.LoginScreen.name)
+                    }
+                }) {
+                    Icon(imageVector = Icons.Filled.Logout, contentDescription = "")
                 }
-            }) {
-                Icon(imageVector = Icons.Filled.Logout, contentDescription = "")
             }
+
         },
+
         backgroundColor = Color.Transparent,
         elevation = 1.dp,
         modifier = Modifier.padding(15.dp)
 
     )
+}
+
+@Composable
+fun BookRating(score: Double = 4.5) {
+    Surface(
+        modifier = Modifier.padding(top = 2.dp),
+        color = Color.White,
+        shape = RoundedCornerShape(60),
+        elevation = 2.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.StarBorder,
+                contentDescription = "Star Icon"
+            )
+            Text(
+                text = score.toString(),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+    }
+
+}
+
+
+@Preview
+@Composable
+fun ListCard(
+    book: MBook = MBook("asfas", "Flutter in Action", "Eric Windmill", "Hello world"),
+    onPress: (String) -> Unit = {}
+) {
+    val context = LocalContext.current
+    val resources = context.resources
+    val displayMetrics = resources.displayMetrics
+
+    val screenWidth = displayMetrics.widthPixels / displayMetrics.density
+
+    val spacing = 10.dp
+    Card(
+        shape = RoundedCornerShape(25.dp),
+        backgroundColor = Color.White,
+        elevation = 6.dp,
+        modifier = Modifier
+            .padding(16.dp)
+            .height(240.dp)
+            .width(200.dp)
+            .clickable { onPress.invoke(book.title.toString()) }
+    ) {
+
+        Column(
+            modifier = Modifier.width(screenWidth.dp - (spacing * 2)),
+            horizontalAlignment = Alignment.Start
+
+        ) {
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+
+            ) {
+                Image(
+                    painter = rememberImagePainter("http://books.google.com/books/content?id=Y5MqEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(140.dp)
+                        .width(100.dp)
+                        .padding(4.dp)
+                )
+                Spacer(modifier = Modifier.width(50.dp))
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite Icon"
+                    )
+                    BookRating()
+
+
+                }
+
+            }
+
+            Text(
+                modifier = Modifier.padding(4.dp),
+                text = book.title.toString(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                maxLines = 2
+            )
+            Text(
+                modifier = Modifier.padding(4.dp),
+                text = "[${book.authors}]",
+                maxLines = 2
+            )
+        }
+        Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.Bottom) {
+            RoundedButton()
+        }
+
+    }
+}
+
+
+@Composable
+fun RoundedButton(
+    label: String = "Reading",
+    radius: Int = 25,
+    onPress: () -> Unit = {}
+) {
+    Surface(
+        modifier = Modifier.clickable {
+            onPress()
+        },
+        shape = RoundedCornerShape(topStart = radius.dp, bottomEnd = radius.dp),
+        color = Color(0xFF8AC2D9)
+    ) {
+        Text(
+            text = label,
+            color = Color.White,
+            modifier = Modifier.padding(6.dp)
+        )
+    }
 }
 

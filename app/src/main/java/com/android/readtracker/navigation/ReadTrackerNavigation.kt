@@ -1,12 +1,14 @@
 package com.android.readtracker.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.android.readtracker.screens.details.BookDetailScreen
 import com.android.readtracker.screens.home.Home
 import com.android.readtracker.screens.login.TrackerLoginScreen
+import com.android.readtracker.screens.search.BookSearchViewModel
 import com.android.readtracker.screens.search.TrackerSearchScreen
 import com.android.readtracker.screens.splash.TrackerSplashScreen
 import com.android.readtracker.screens.stats.TrackerStatsScreen
@@ -32,12 +34,16 @@ fun ReadTrackerNavigation() {
             TrackerLoginScreen(navController= navController)
         }
         composable(ReadTrackerScreens.SearchScreen.name){
-            TrackerSearchScreen(navController= navController)
+            val searchViewModel= hiltViewModel<BookSearchViewModel>()
+
+            TrackerSearchScreen(navController= navController, viewModel = searchViewModel)
         }
         composable(ReadTrackerScreens.ReaderStatsScreen.name){
             TrackerStatsScreen(navController= navController)
         }
         composable(ReadTrackerScreens.UpdateScreen.name){
+
+
             TrackerUpdateScreen(navController= navController)
         }
     }

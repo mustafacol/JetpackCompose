@@ -1,37 +1,30 @@
 package com.android.readtracker.screens.home
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import coil.compose.rememberImagePainter
-import  com.android.readtracker.R
+import com.android.readtracker.components.ListCard
 import com.android.readtracker.components.ReadTrackerTopBar
 import com.android.readtracker.model.MBook
-import com.android.readtracker.model.MUser
 import com.android.readtracker.navigation.ReadTrackerScreens
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun Home(navController: NavController = NavController(LocalContext.current)) {
@@ -40,7 +33,9 @@ fun Home(navController: NavController = NavController(LocalContext.current)) {
             ReadTrackerTopBar(title = "Read Tracker", navController = navController)
         },
         floatingActionButton = {
-            FABContent {}
+            FABContent {
+                navController.navigate(ReadTrackerScreens.SearchScreen.name)
+            }
         }
     ) {
         Surface(
@@ -55,6 +50,14 @@ fun Home(navController: NavController = NavController(LocalContext.current)) {
 @Composable
 fun HomeContent(navController: NavController = NavController(LocalContext.current)) {
 
+    val listOfBooks = listOf(
+        MBook(id = "1", title = "Hello World", authors = "You", notes = null),
+        MBook(id = "2", title = "Hello World", authors = "You", notes = null),
+        MBook(id = "3", title = "Hello World", authors = "You", notes = null),
+        MBook(id = "4", title = "Hello World", authors = "You", notes = null),
+        MBook(id = "5", title = "Hello World", authors = "You", notes = null),
+
+        )
     val email = FirebaseAuth.getInstance().currentUser?.email
 
     val currentUserName = if (!email.isNullOrEmpty()) email.split("@")[0] else "N/A"
@@ -67,7 +70,9 @@ fun HomeContent(navController: NavController = NavController(LocalContext.curren
 
 
     Column(
-        modifier = Modifier.padding(2.dp),
+        modifier = Modifier
+            .padding(2.dp)
+            .verticalScroll(state = rememberScrollState()),
         verticalArrangement = Arrangement.Top
     ) {
         Row(
@@ -102,12 +107,39 @@ fun HomeContent(navController: NavController = NavController(LocalContext.curren
                     maxLines = 1,
                 )
 
+                Divider()
 
             }
         }
-        ListCard()
+
+        ReadingRightNowArea(books = listOf(), navController = navController)
+
+        TitleSection(label = "Reading List")
+
+        BookListArea(listOfBooks = listOfBooks, navController = navController)
+
+    }
+}
 
 
+@Composable
+fun BookListArea(listOfBooks: List<MBook>, navController: NavController) {
+
+    HorizontalScrollableComponent(listOfBooks = listOfBooks) {
+        // Todo: on card clicked navigate to book details.
+    }
+}
+
+@Composable
+fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (String) -> Unit) {
+    val scrollState = rememberScrollState()
+
+    LazyRow {
+        items(listOfBooks) { book ->
+            ListCard(book = book) {
+                onCardPressed(it)
+            }
+        }
     }
 }
 
@@ -117,7 +149,7 @@ fun TitleSection(
     label: String
 ) {
     Text(
-        modifier = modifier.padding(3.dp),
+        modifier = modifier.padding(start = 16.dp),
         text = label,
         fontSize = 19.sp,
         textAlign = TextAlign.Left
@@ -126,14 +158,16 @@ fun TitleSection(
 
 @Composable
 fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
-
+    ListCard()
 }
 
 
 @Composable
 fun FABContent(onTap: () -> Unit = {}) {
     FloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = {
+            onTap()
+        },
         shape = RoundedCornerShape(50),
         backgroundColor = Color(0xFF8AC2D9)
     ) {
@@ -146,116 +180,5 @@ fun FABContent(onTap: () -> Unit = {}) {
     }
 }
 
-@Preview
-@Composable
-fun ListCard(
-    book: MBook = MBook("asfas", "Flutter in Action", "Eric Windmill", "Hello world"),
-    onPress: (String) -> Unit = {}
-) {
-    val context = LocalContext.current
-    val resources = context.resources
-    val displayMetrics = resources.displayMetrics
-
-    val screenWidth = displayMetrics.widthPixels / displayMetrics.density
-
-    val spacing = 10.dp
-    Card(
-        shape = RoundedCornerShape(25.dp),
-        backgroundColor = Color.White,
-        elevation = 6.dp,
-        modifier = Modifier
-            .padding(16.dp)
-            .height(250.dp)
-            .width(200.dp)
-            .clickable { onPress.invoke(book.title.toString()) }
-    ) {
-
-        Column(
-            modifier = Modifier.width(screenWidth.dp - (spacing * 2))
-        ) {
-
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-
-            ) {
-                Image(
-                    painter = rememberImagePainter(data = "http://books.google.com/books/content?id=Y5MqEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"),
-                    contentDescription = "book image",
-                    modifier = Modifier
-                        .height(140.dp)
-                        .width(100.dp)
-                        .padding(6.dp)
-                )
-                Spacer(modifier = Modifier.width(50.dp))
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite Icon"
-                    )
-
-                    Surface(
-                        modifier = Modifier.padding(top = 2.dp),
-                        color = Color.White,
-                        shape = RoundedCornerShape(60),
-                        elevation = 2.dp
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.StarBorder,
-                                contentDescription = "Star Icon"
-                            )
-                            Text(
-                                text = "0.0",
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
-                        }
-                    }
-                }
-
-            }
-
-            Text(
-                text = book.title.toString(),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-            )
-            Text(text = "[${book.authors}]")
 
 
-        }
-        Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.Bottom) {
-            RoundedButton()
-        }
-
-    }
-}
-
-@Composable
-fun RoundedButton(
-    label: String = "Reading",
-    radius: Int = 25,
-    onPress: () -> Unit = {}
-) {
-    Surface(
-        modifier = Modifier.clickable {
-            onPress()
-        },
-        shape = RoundedCornerShape(topStart = radius.dp, bottomEnd = radius.dp),
-        color = Color(0xFF8AC2D9)
-    ) {
-        Text(
-            text = label,
-            color = Color.White,
-            modifier = Modifier.padding(6.dp)
-        )
-    }
-}
