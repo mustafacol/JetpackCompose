@@ -1,6 +1,7 @@
 package com.android.readtracker.screens.search
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,6 +28,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.android.readtracker.components.InputField
 import com.android.readtracker.components.ReadTrackerTopBar
+import com.android.readtracker.model.Item
 import com.android.readtracker.model.MBook
 import com.android.readtracker.navigation.ReadTrackerScreens
 
@@ -76,6 +78,7 @@ fun TrackerSearchScreen(
 fun SearchForm(
     modifier: Modifier = Modifier,
     loading: Boolean = false,
+    viewModel: BookSearchViewModel = hiltViewModel(),
     hint: String = "Search",
     onSearch: (String) -> Unit = {}
 ) {
@@ -88,7 +91,11 @@ fun SearchForm(
         valueState = searchQueryState,
         label = hint,
         enabled = true,
+        //activeSearch = true,
         isSingleLine = true,
+//        valueChange = {
+//            viewModel.searchBooks(it)
+//        },
         onAction = KeyboardActions {
             if (!valid) return@KeyboardActions
             onSearch(searchQueryState.value.trim())
@@ -102,39 +109,46 @@ fun SearchForm(
 @Composable
 fun BookList(
     navController: NavController,
-    viewModel: BookSearchViewModel
+    viewModel: BookSearchViewModel = hiltViewModel()
 ) {
-    val listOfBooks = listOf(
-        MBook(id = "1", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "2", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "3", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "4", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "5", title = "Hello World", authors = "You", notes = null),
-
-        )
-    LazyColumn {
-        items(listOfBooks) { bookItem ->
-            BookRow(bookItem)
+    val listOfBooks = viewModel.list
+    if (viewModel.isLoading) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LinearProgressIndicator()
+        }
+    } else {
+        LazyColumn {
+            items(listOfBooks) { bookItem ->
+                BookRow(bookItem, navController)
+            }
         }
     }
+
 }
 
-@Preview
 @Composable
-fun BookRow(book: MBook = MBook("1", "Android For Dummies", "Jane Doe", null)) {
+fun BookRow(book: Item, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+            .height(120.dp)
+            .padding(start = 6.dp, end = 6.dp, bottom = 6.dp)
+            .clickable {
+                navController.navigate(ReadTrackerScreens.DetailScreen.name + "/${book.id}")
+            },
         elevation = 6.dp
     ) {
         Row(
             modifier = Modifier.padding(5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageUrl = book.volumeInfo.imageLinks?.smallThumbnail
+                ?: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Closed_Book_Icon.svg/512px-Closed_Book_Icon.svg.png"
             Image(
-                painter = rememberImagePainter("http://books.google.com/books/content?id=Y5MqEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"),
+                painter = rememberImagePainter(imageUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -146,25 +160,25 @@ fun BookRow(book: MBook = MBook("1", "Android For Dummies", "Jane Doe", null)) {
 
             ) {
                 Text(
-                    text = book.title.toString(),
+                    text = book.volumeInfo.title.toString(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "Author: ${book.authors}",
+                    text = "Author: ${book.volumeInfo.authors ?: book.volumeInfo.publisher}",
                     overflow = TextOverflow.Clip,
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.caption
                 )
                 Text(
-                    text = "Date: 2020-09-09",
+                    text = "Date: ${book.volumeInfo.publishedDate ?: "Unknown"}",
                     overflow = TextOverflow.Clip,
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.caption
 
                 )
                 Text(
-                    text = "[Computers]",
+                    text = "${book.volumeInfo.categories ?: "[]"}",
                     overflow = TextOverflow.Clip,
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.caption

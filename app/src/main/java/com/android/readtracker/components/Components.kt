@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
@@ -80,13 +81,20 @@ fun InputField(
     label: String,
     enabled: Boolean,
     isSingleLine: Boolean,
+    activeSearch: Boolean = false,
+    valueChange: (String) -> Unit = {},
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     onAction: KeyboardActions = KeyboardActions.Default
 ) {
     OutlinedTextField(
         value = valueState.value,
-        onValueChange = { valueState.value = it },
+        onValueChange = {
+            valueState.value = it
+            if (activeSearch) {
+                valueChange(valueState.value)
+            }
+        },
         label = { Text(text = label) },
         enabled = enabled,
         singleLine = isSingleLine,
@@ -263,7 +271,7 @@ fun ReadTrackerTopBar(
             }
         },
         actions = {
-            if(showProfile){
+            if (showProfile) {
                 IconButton(onClick = {
                     FirebaseAuth.getInstance().signOut().run {
                         navController.navigate(ReadTrackerScreens.LoginScreen.name)
@@ -411,3 +419,26 @@ fun RoundedButton(
     }
 }
 
+@Composable
+fun CustomRoundedButton(
+    label: String = "Reading",
+    radius: Int = 25,
+    onPress: () -> Unit = {}
+) {
+    Surface(
+        modifier = Modifier
+            .width(80.dp)
+            .clickable {
+            onPress()
+        },
+        shape = RoundedCornerShape(radius.dp),
+        color = Color(0xFF8AC2D9)
+    ) {
+        Text(
+            text = label,
+            color = Color.White,
+            modifier = Modifier.padding(6.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
