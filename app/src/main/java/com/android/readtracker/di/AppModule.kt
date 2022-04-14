@@ -31,6 +31,6 @@ object AppModule {
     fun provideFireBookRepository() =
         FireRepository(
             queryBook = FirebaseFirestore.getInstance()
-                .collection("book")
+                .collection("books")
         )
 }
