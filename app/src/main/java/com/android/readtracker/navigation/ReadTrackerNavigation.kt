@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.android.readtracker.screens.details.BookDetailScreen
 import com.android.readtracker.screens.details.BookDetailsViewModel
 import com.android.readtracker.screens.home.Home
+import com.android.readtracker.screens.home.HomeScreenViewModel
 import com.android.readtracker.screens.login.TrackerLoginScreen
 import com.android.readtracker.screens.search.BookSearchViewModel
 import com.android.readtracker.screens.search.TrackerSearchScreen
@@ -31,7 +32,8 @@ fun ReadTrackerNavigation() {
             TrackerSplashScreen(navController = navController)
         }
         composable(ReadTrackerScreens.ReadTrackerHomeScreen.name) {
-            Home(navController = navController)
+            val homeViewModel = hiltViewModel<HomeScreenViewModel>()
+            Home(navController = navController, viewModel = homeViewModel)
         }
 
         val detailName = ReadTrackerScreens.DetailScreen.name

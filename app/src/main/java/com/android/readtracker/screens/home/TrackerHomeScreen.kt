@@ -1,5 +1,6 @@
 package com.android.readtracker.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.android.readtracker.components.ListCard
 import com.android.readtracker.components.ReadTrackerTopBar
@@ -27,7 +29,10 @@ import com.android.readtracker.navigation.ReadTrackerScreens
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun Home(navController: NavController = NavController(LocalContext.current)) {
+fun Home(
+    navController: NavController,
+    viewModel: HomeScreenViewModel = hiltViewModel()
+) {
     Scaffold(
         topBar = {
             ReadTrackerTopBar(title = "Read Tracker", navController = navController)
@@ -42,22 +47,36 @@ fun Home(navController: NavController = NavController(LocalContext.current)) {
             modifier = Modifier.fillMaxSize()
         ) {
 
-            HomeContent(navController = navController)
+            HomeContent(navController = navController, viewModel = viewModel)
         }
     }
 }
 
 @Composable
-fun HomeContent(navController: NavController = NavController(LocalContext.current)) {
+fun HomeContent(
+    navController: NavController = NavController(LocalContext.current),
+    viewModel: HomeScreenViewModel
+) {
 
-    val listOfBooks = listOf(
-        MBook(id = "1", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "2", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "3", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "4", title = "Hello World", authors = "You", notes = null),
-        MBook(id = "5", title = "Hello World", authors = "You", notes = null),
+//    val listOfBooks = listOf(
+//        MBook(id = "1", title = "Hello World", authors = "You", notes = null),
+//        MBook(id = "2", title = "Hello World", authors = "You", notes = null),
+//        MBook(id = "3", title = "Hello World", authors = "You", notes = null),
+//        MBook(id = "4", title = "Hello World", authors = "You", notes = null),
+//        MBook(id = "5", title = "Hello World", authors = "You", notes = null),
+//
+//        )
 
-        )
+    var listOfBooks = emptyList<MBook>()
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    if (!viewModel.data.value.data.isNullOrEmpty()) {
+        listOfBooks = viewModel.data.value.data!!.toList().filter { mBook ->
+            mBook.userId == currentUser?.uid.toString()
+        }
+
+        Log.d("Books", "HomeContent: ${listOfBooks.toString()}")
+    }
     val email = FirebaseAuth.getInstance().currentUser?.email
 
     val currentUserName = if (!email.isNullOrEmpty()) email.split("@")[0] else "N/A"

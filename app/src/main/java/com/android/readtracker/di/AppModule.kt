@@ -1,7 +1,9 @@
 package com.android.readtracker.di
 
 import com.android.readtracker.network.BooksApi
+import com.android.readtracker.repository.FireRepository
 import com.android.readtracker.utils.Constants.BASE_URL
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,4 +25,12 @@ object AppModule {
             .build()
             .create(BooksApi::class.java)
     }
+
+    @Singleton
+    @Provides
+    fun provideFireBookRepository() =
+        FireRepository(
+            queryBook = FirebaseFirestore.getInstance()
+                .collection("book")
+        )
 }

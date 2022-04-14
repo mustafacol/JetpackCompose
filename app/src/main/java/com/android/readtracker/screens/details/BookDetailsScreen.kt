@@ -1,5 +1,6 @@
 package com.android.readtracker.screens.details
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,7 +32,10 @@ import com.android.readtracker.components.ReadTrackerTopBar
 import com.android.readtracker.components.RoundedButton
 import com.android.readtracker.data.Resource
 import com.android.readtracker.model.Item
+import com.android.readtracker.model.MBook
 import com.android.readtracker.navigation.ReadTrackerScreens
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun BookDetailScreen(
@@ -58,7 +62,6 @@ fun BookDetailScreen(
                 .fillMaxSize()
         ) {
             Column(
-                modifier = Modifier.padding(top = 6.dp),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -99,8 +102,8 @@ fun ShowBookDetails(
             ),
             contentDescription = "Book Image",
             modifier = Modifier
-                .width(150.dp)
-                .height(150.dp)
+                .width(130.dp)
+                .height(130.dp)
                 .padding(2.dp)
 
         )
@@ -224,11 +227,30 @@ fun ShowBookDetails(
         CustomRoundedButton(
             label = "Save",
             radius = 10
-        )
+        ) {
+            val book = MBook(
+                title = bookData.title,
+                authors = bookData.authors.toString(),
+                description = bookData.description,
+                categories = bookData.categories.toString(),
+                notes = "",
+                photoUrl = bookData.imageLinks?.thumbnail ?: "",
+                publishedDate = bookData.publishedDate,
+                pageCount = bookData.pageCount.toString(),
+                rating = 0.0,
+                googleBookId = googleBookId,
+                userId = FirebaseAuth.getInstance().currentUser?.uid
+            )
+
+            saveToFirebase(book, navController)
+
+        }
         CustomRoundedButton(
             label = "Cancel",
             radius = 10
-        )
+        ){
+            navController.popBackStack()
+        }
 
     }
 
@@ -252,5 +274,29 @@ fun CategoryItem(
             color = Color.White,
             style = MaterialTheme.typography.caption
         )
+    }
+}
+
+fun saveToFirebase(book: MBook, navController: NavController) {
+    val db = FirebaseFirestore.getInstance()
+    val dbCollection = db.collection("books")
+
+    if (book.toString().isNotEmpty()) {
+        dbCollection.add(book).addOnSuccessListener { documentRef ->
+            val docId = documentRef.id
+            dbCollection.document(docId)
+                .update(hashMapOf("id" to docId) as Map<String, Any>)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        navController.popBackStack()
+                    }
+                }
+                .addOnFailureListener {
+                    Log.w("FirebaseUpdateError", "SaveToFirebase: Error updating doc", it)
+                }
+
+        }
+    } else {
+
     }
 }
