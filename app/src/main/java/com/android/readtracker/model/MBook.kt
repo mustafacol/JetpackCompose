@@ -1,8 +1,8 @@
 package com.android.readtracker.model
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.PropertyName
-import java.sql.Timestamp
 
 data class MBook(
     @Exclude var id: String? = null,

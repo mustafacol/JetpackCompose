@@ -353,7 +353,10 @@ fun ListCard(
 
             ) {
                 Image(
-                    painter = rememberImagePainter("http://books.google.com/books/content?id=Y5MqEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"),
+                    painter = rememberImagePainter(
+                        book.photoUrl
+                            ?: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Closed_Book_Icon.svg/512px-Closed_Book_Icon.svg.png"
+                    ),
                     contentDescription = null,
                     modifier = Modifier
                         .height(140.dp)
@@ -429,8 +432,8 @@ fun CustomRoundedButton(
         modifier = Modifier
             .width(80.dp)
             .clickable {
-            onPress()
-        },
+                onPress()
+            },
         shape = RoundedCornerShape(radius.dp),
         color = Color(0xFF8AC2D9)
     ) {

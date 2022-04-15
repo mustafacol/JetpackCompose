@@ -110,4 +110,8 @@ dependencies {
     // To use Kotlin annotation processing tool (kapt) MUST HAVE!
     kapt("androidx.room:room-compiler:$room_version")
     implementation "androidx.room:room-ktx:$room_version"
+
+    // Rating Bar
+    implementation 'com.github.MhmoudAlim:Compose-Ratingbar-library:0.1.0'
+
 }

@@ -59,10 +59,18 @@ fun ReadTrackerNavigation() {
         composable(ReadTrackerScreens.ReaderStatsScreen.name) {
             TrackerStatsScreen(navController = navController)
         }
-        composable(ReadTrackerScreens.UpdateScreen.name) {
-
-
-            TrackerUpdateScreen(navController = navController)
+        val updateScreenName = ReadTrackerScreens.UpdateScreen.name
+        composable(
+            "$updateScreenName/{bookItemId}",
+            arguments = listOf(
+                navArgument("bookItemId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            backStackEntry.arguments?.getString("bookItemId").let {
+                TrackerUpdateScreen(navController = navController, bookItemId = it.toString())
+            }
         }
     }
 }

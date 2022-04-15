@@ -145,7 +145,7 @@ fun HomeContent(
 fun BookListArea(listOfBooks: List<MBook>, navController: NavController) {
 
     HorizontalScrollableComponent(listOfBooks = listOfBooks) {
-        // Todo: on card clicked navigate to book details.
+        navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
     }
 }
 
@@ -156,7 +156,7 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
     LazyRow {
         items(listOfBooks) { book ->
             ListCard(book = book) {
-                onCardPressed(it)
+                onCardPressed(book.googleBookId.toString())
             }
         }
     }
