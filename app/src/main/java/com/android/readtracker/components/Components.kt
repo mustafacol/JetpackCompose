@@ -1,13 +1,10 @@
 package com.android.readtracker.components
 
-import android.widget.ImageButton
-import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -23,19 +20,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
@@ -328,7 +326,9 @@ fun ListCard(
     val displayMetrics = resources.displayMetrics
 
     val screenWidth = displayMetrics.widthPixels / displayMetrics.density
-
+    val isStartedReading = remember {
+        mutableStateOf(false)
+    }
     val spacing = 10.dp
     Card(
         shape = RoundedCornerShape(25.dp),
@@ -389,12 +389,19 @@ fun ListCard(
             )
             Text(
                 modifier = Modifier.padding(4.dp),
-                text = "[${book.authors}]",
+                text = "${book.authors}".replace("[", "").replace("]", ""),
                 maxLines = 2
             )
         }
-        Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.Bottom) {
-            RoundedButton()
+
+        Row(
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            isStartedReading.value = book.startedReading != null
+            RoundedButton(
+                label = if (isStartedReading.value) "Reading" else "Not Started"
+            )
         }
 
     }
@@ -444,4 +451,39 @@ fun CustomRoundedButton(
             textAlign = TextAlign.Center
         )
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun SimpleForm(
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
+    defaultValue: MutableState<String>,
+    onSearch: (String) -> Unit
+) {
+    //val textFieldValue = rememberSaveable { mutableStateOf(defaultValue) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val valid = remember(defaultValue.value) {
+        defaultValue.value.trim().isNotEmpty()
+    }
+
+    InputField(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.3f)
+            .padding(4.dp)
+            .background(color = Color.White, shape = RoundedCornerShape(25)),
+        valueState = defaultValue,
+        valueChange = {
+            defaultValue.value = it
+        },
+        label = "Your thoughts",
+        enabled = !loading,
+        isSingleLine = false,
+        onAction = KeyboardActions {
+            if (!valid) return@KeyboardActions
+            onSearch(defaultValue.value.trim())
+            keyboardController?.hide()
+        }
+    )
 }

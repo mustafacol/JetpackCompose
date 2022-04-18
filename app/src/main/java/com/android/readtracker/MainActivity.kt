@@ -2,6 +2,7 @@ package com.android.readtracker
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.android.readtracker.navigation.ReadTrackerNavigation
 import com.android.readtracker.ui.theme.ReadTrackerTheme
@@ -45,12 +47,5 @@ fun ReadTrackerApp(){
         ) {
             ReadTrackerNavigation()
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    ReadTrackerTheme {
     }
 }

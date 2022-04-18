@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -131,7 +132,7 @@ fun HomeContent(
             }
         }
 
-        ReadingRightNowArea(books = listOf(), navController = navController)
+        ReadingRightNowArea(listOfBooks = listOfBooks, navController = navController)
 
         TitleSection(label = "Reading List")
 
@@ -144,10 +145,24 @@ fun HomeContent(
 @Composable
 fun BookListArea(listOfBooks: List<MBook>, navController: NavController) {
 
-    HorizontalScrollableComponent(listOfBooks = listOfBooks) {
-        navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
+    val addedBook = listOfBooks.filter { mBook ->
+        mBook.startedReading == null && mBook.finishedReading == null
+    }
+    if (addedBook.isNullOrEmpty()) {
+        Text(
+            modifier= Modifier.padding(15.dp),
+            text = "No book found. Please add book.",
+            color = Color.Red.copy(alpha = 0.6f),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
+    } else {
+        HorizontalScrollableComponent(listOfBooks = addedBook) {
+            navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
+        }
     }
 }
+
 
 @Composable
 fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (String) -> Unit) {
@@ -176,8 +191,14 @@ fun TitleSection(
 }
 
 @Composable
-fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
-    ListCard()
+fun ReadingRightNowArea(listOfBooks: List<MBook>, navController: NavController) {
+    val readingRightNowList = listOfBooks.filter { mBook ->
+        mBook.startedReading != null && mBook.finishedReading == null
+    }
+
+    HorizontalScrollableComponent(listOfBooks = readingRightNowList) {
+        navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
+    }
 }
 
 

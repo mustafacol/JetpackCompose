@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,7 +28,6 @@ import coil.compose.rememberImagePainter
 import com.android.readtracker.components.InputField
 import com.android.readtracker.components.ReadTrackerTopBar
 import com.android.readtracker.model.Item
-import com.android.readtracker.model.MBook
 import com.android.readtracker.navigation.ReadTrackerScreens
 
 @Composable
