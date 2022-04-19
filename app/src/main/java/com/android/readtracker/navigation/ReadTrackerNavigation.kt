@@ -57,7 +57,8 @@ fun ReadTrackerNavigation() {
             TrackerSearchScreen(navController = navController, viewModel = searchViewModel)
         }
         composable(ReadTrackerScreens.ReaderStatsScreen.name) {
-            TrackerStatsScreen(navController = navController)
+            val homeViewModel = hiltViewModel<HomeScreenViewModel>()
+            TrackerStatsScreen(navController = navController, viewModel = homeViewModel)
         }
         val updateScreenName = ReadTrackerScreens.UpdateScreen.name
         composable(

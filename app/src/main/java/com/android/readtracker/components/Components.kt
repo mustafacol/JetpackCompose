@@ -338,7 +338,7 @@ fun ListCard(
             .padding(16.dp)
             .height(240.dp)
             .width(200.dp)
-            .clickable { onPress.invoke(book.title.toString()) }
+            .clickable { onPress.invoke(book.id.toString()) }
     ) {
 
         Column(
@@ -373,7 +373,7 @@ fun ListCard(
                         imageVector = Icons.Default.FavoriteBorder,
                         contentDescription = "Favorite Icon"
                     )
-                    BookRating()
+                    BookRating(book.rating ?: 0.0)
 
 
                 }

@@ -36,7 +36,9 @@ fun Home(
 ) {
     Scaffold(
         topBar = {
-            ReadTrackerTopBar(title = "Read Tracker", navController = navController)
+            ReadTrackerTopBar(title = "Read Tracker", navController = navController) {
+                navController.navigate(ReadTrackerScreens.ReaderStatsScreen.name)
+            }
         },
         floatingActionButton = {
             FABContent {
@@ -92,6 +94,7 @@ fun HomeContent(
     Column(
         modifier = Modifier
             .padding(2.dp)
+            .fillMaxWidth()
             .verticalScroll(state = rememberScrollState()),
         verticalArrangement = Arrangement.Top
     ) {
@@ -132,11 +135,24 @@ fun HomeContent(
             }
         }
 
-        ReadingRightNowArea(listOfBooks = listOfBooks, navController = navController)
+        if (viewModel.data.value.loading == true) {
+            Column(
+                modifier= Modifier.fillMaxWidth().fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                CircularProgressIndicator()
 
-        TitleSection(label = "Reading List")
+            }
 
-        BookListArea(listOfBooks = listOfBooks, navController = navController)
+        } else {
+            ReadingRightNowArea(listOfBooks = listOfBooks, navController = navController)
+            TitleSection(label = "Reading List")
+            BookListArea(listOfBooks = listOfBooks, navController = navController)
+
+        }
+
+
 
     }
 }
@@ -150,12 +166,13 @@ fun BookListArea(listOfBooks: List<MBook>, navController: NavController) {
     }
     if (addedBook.isNullOrEmpty()) {
         Text(
-            modifier= Modifier.padding(15.dp),
+            modifier = Modifier.padding(15.dp),
             text = "No book found. Please add book.",
             color = Color.Red.copy(alpha = 0.6f),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
+        Box(modifier = Modifier.height(80.dp)) {}
     } else {
         HorizontalScrollableComponent(listOfBooks = addedBook) {
             navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
@@ -196,9 +213,20 @@ fun ReadingRightNowArea(listOfBooks: List<MBook>, navController: NavController) 
         mBook.startedReading != null && mBook.finishedReading == null
     }
 
-    HorizontalScrollableComponent(listOfBooks = readingRightNowList) {
-        navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
+    if (readingRightNowList.isNullOrEmpty()) {
+        Text(
+            modifier = Modifier.padding(15.dp),
+            text = "No book found. Please add book.",
+            color = Color.Red.copy(alpha = 0.6f),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
+    } else {
+        HorizontalScrollableComponent(listOfBooks = readingRightNowList) {
+            navController.navigate(ReadTrackerScreens.UpdateScreen.name + "/$it")
+        }
     }
+
 }
 
 

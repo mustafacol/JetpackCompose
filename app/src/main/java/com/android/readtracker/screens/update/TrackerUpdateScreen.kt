@@ -241,7 +241,7 @@ fun ShowReadingButtons(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         TextButton(
-            onClick = { isStartedReading.value = !isStartedReading.value },
+            onClick = { isStartedReading.value = true },
             enabled = book.startedReading == null
         ) {
             if (book.startedReading == null) {
@@ -257,7 +257,7 @@ fun ShowReadingButtons(
         }
 
         TextButton(
-            onClick = { isFinishedReading.value = !isFinishedReading.value },
+            onClick = { isFinishedReading.value = true },
             enabled = book.finishedReading == null
 
         ) {
